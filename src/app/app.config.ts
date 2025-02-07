@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
@@ -22,32 +23,72 @@ export class AppConfig {
     ) { }
 
     load() {
+        if ((window as any).USE_POST_MESSAGE) {
+            window.postMessage({
+                type: 'EVT_INIT',
+            }, '*');
+
+            return new Promise<void>((resolve) => {
+                window.addEventListener('message', (event: any) => {
+                    if (event.data?.type === 'EVT_EXT_CONFIG') {
+                        console.log('POST MESSAGE', event.data);
+                        this._load(event.data.message).finally(() => resolve());
+                    }
+                })
+            });
+        }
+
+        return this._load();
+    }
+
+    _load(externalConfig?: Partial<EVTConfig>) {
         return new Promise<void>((resolve) => {
             this.http.get<FileConfig>(this.fileConfigUrl).pipe(
-                switchMap((files: FileConfig) => forkJoin([
-                    this.http.get<UiConfig>(files.configurationUrls?.ui ?? this.uiConfigUrl),
-                    this.http.get<EditionConfig>(files.configurationUrls?.edition ?? this.editionConfigUrl),
-                    this.http.get<EditorialConventionsConfig>(
-                        files.configurationUrls?.editorialConventions ?? this.editorialConventionsConfigUrl),
-                ]).pipe(
-                    map(([ui, edition, editorialConventions]) => {
-                        console.log(ui, edition, files);
-                        this.updateStyleFromConfig(edition, ui);
-                        // Handle default values => TODO: Decide how to handle defaults!!
-                        if (ui.defaultLocalization) {
-                            if (ui.availableLanguages.find((l) => l.code === ui.defaultLocalization && l.enable)) {
-                                this.translate.use(ui.defaultLocalization);
-                            } else {
-                                const firstAvailableLang = ui.availableLanguages.find((l) => l.enable);
-                                if (firstAvailableLang) {
-                                    this.translate.use(firstAvailableLang.code);
+                switchMap((files: FileConfig) => {
+                    if (externalConfig?.files) {
+                        files = {
+                            ...files,
+                            ...externalConfig?.files,
+                        }
+                    }
+
+                    return forkJoin([
+                        this.http.get<UiConfig>(files.configurationUrls?.ui ?? this.uiConfigUrl),
+                        this.http.get<EditionConfig>(files.configurationUrls?.edition ?? this.editionConfigUrl),
+                        this.http.get<EditorialConventionsConfig>(
+                            files.configurationUrls?.editorialConventions ?? this.editorialConventionsConfigUrl),
+                    ]).pipe(
+                        map(([ui, edition, editorialConventions]) => {
+                            ui = {
+                                ...ui,
+                                ...externalConfig?.ui ?? {},
+                            }
+                            edition = {
+                                ...edition,
+                                ...externalConfig?.edition ?? {},
+                            }
+                            editorialConventions = {
+                                ...editorialConventions,
+                                ...externalConfig?.editorialConventions ?? {},
+                            }
+
+                            this.updateStyleFromConfig(edition, ui);
+                            // Handle default values => TODO: Decide how to handle defaults!!
+                            if (ui.defaultLocalization) {
+                                if (ui.availableLanguages.find((l) => l.code === ui.defaultLocalization && l.enable)) {
+                                    this.translate.use(ui.defaultLocalization);
+                                } else {
+                                    const firstAvailableLang = ui.availableLanguages.find((l) => l.enable);
+                                    if (firstAvailableLang) {
+                                        this.translate.use(firstAvailableLang.code);
+                                    }
                                 }
                             }
-                        }
 
-                        return { ui, edition, files, editorialConventions };
-                    }),
-                )),
+                            return { ui, edition, files, editorialConventions };
+                        }),
+                    )
+                }),
             ).subscribe((evtConfig) => {
                 AppConfig.evtSettings = evtConfig;
                 console.log('evtConfig', evtConfig);
@@ -71,7 +112,7 @@ export class AppConfig {
         rules['.' + SourceClass + ' .opened'] = `background-color: ${edition.readingColorDark};`;
         rules['.' + AnalogueClass + ':hover'] = `background-color: ${edition.readingColorLight}; cursor:pointer;`;
         rules['.' + SourceClass + ':hover'] = `background-color: ${edition.readingColorLight}; cursor:pointer;`;
-        Object.entries(rules).forEach(([selector,style]) => { updateCSS([[selector,style]]) });
+        Object.entries(rules).forEach(([selector, style]) => { updateCSS([[selector, style]]) });
     }
 
 }
@@ -97,13 +138,13 @@ export interface UiConfig {
     thumbnailsButton: boolean;
     viscollButton: boolean;
     defaultBibliographicStyle: string;
-	  allowedBibliographicStyles: {
-      [key: string]: {
-              id: string;
-        label: string;
-        enabled: boolean;
-              propsOrder: BibliographicProperties[];
-              properties: BibliographicStyle;
+    allowedBibliographicStyles: {
+        [key: string]: {
+            id: string;
+            label: string;
+            enabled: boolean;
+            propsOrder: BibliographicProperties[];
+            properties: BibliographicStyle;
         }
     };
     mainFontFamily: string;
