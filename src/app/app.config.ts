@@ -5,7 +5,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { forkJoin } from 'rxjs';
 import { map, switchMap } from 'rxjs/operators';
 import { EntitiesSelectItemGroup } from './components/entities-select/entities-select.component';
-import { AnalogueClass, SourceClass, ViewMode, ViewModeId } from './models/evt-models';
+import { AnalogueClass, ApparatusItemId, SourceClass, ViewMode, ViewModeId } from './models/evt-models';
 import { Attributes, EditorialConventionLayout } from './models/evt-models';
 import { updateCSS } from './utils/dom-utils';
 
@@ -153,9 +153,16 @@ export interface UiConfig {
     secondaryFontSize: string;
     theme: 'neutral' | 'modern' | 'classic';
     syncZonesHighlightButton: boolean;
+
+    // Customizations
+    hideSearch?: boolean;
+    hideGlobalTools?: boolean;
+    disablePinnedBoard?: boolean;
+    disableApparatuses?: boolean;
+    apparatusesItems: ApparatusItemId[];
 }
 export type CitingRanges = 'issue' | 'volume' | 'page';
-export type BibliographicProperties = 'author'| 'date'| 'title'| 'editor' | 'publication' | 'pubPlace' | 'publisher' | 'doi';
+export type BibliographicProperties = 'author' | 'date' | 'title' | 'editor' | 'publication' | 'pubPlace' | 'publisher' | 'doi';
 export type BibliographicStyle = Partial<{
     propsDelimiter: string;
     authorStyle: Partial<{
@@ -204,13 +211,13 @@ export interface EditionConfig {
         elementAttributesToMatch: string[];
     }>;
     biblView: Partial<{
-		propsToShow: string[];
-		showAttrNames: boolean;
-		showEmptyValues: boolean;
-		inline: boolean;
+        propsToShow: string[];
+        showAttrNames: boolean;
+        showEmptyValues: boolean;
+        inline: boolean;
         commaSeparated: boolean;
         showMainElemTextContent: boolean;
-	}>;
+    }>;
     analogueMarkers: string[];
     sourcesExcludedFromListByParent: string[];
     showChangeLayerMarkerInText: boolean;

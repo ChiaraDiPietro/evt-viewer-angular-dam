@@ -37,7 +37,7 @@ export interface EditionStructure {
 }
 
 export type ViewModeId = 'imageOnly' | 'imageImage' | 'readingText' | 'imageText' | 'textText' |
-'collation' | 'textSources' | 'textVersions' | 'documentalMixed';
+    'collation' | 'textSources' | 'textVersions' | 'documentalMixed';
 
 export interface ViewMode {
     id: ViewModeId;
@@ -315,7 +315,7 @@ export class Surface extends GenericElement {
     };
 }
 
-export class Facsimile extends GenericElement{
+export class Facsimile extends GenericElement {
     corresp: string | undefined;
     surfaces: Surface[];
     surfaceGrps: SurfaceGrp[];
@@ -442,7 +442,7 @@ export class Addition extends GenericElement {
 
 export class Space extends GenericElement {
     quantity?: number;
-    unit?: 'chars' | 'letter' ;
+    unit?: 'chars' | 'letter';
 }
 
 export type SicType = 'crux'; // sic types supported in specific ways
@@ -1380,3 +1380,5 @@ export interface ViewerDataType {
     type: string;
     value: ViewerDataValue;
 }
+
+export type ApparatusItemId = 'critical' | 'sources' | 'analogues' | 'notes';

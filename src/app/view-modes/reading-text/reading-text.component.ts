@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { CompactType, DisplayGrid, GridsterConfig, GridsterItem, GridType } from 'angular-gridster2';
 import { map, shareReplay } from 'rxjs/operators';
 import { EVTStatusService } from 'src/app/services/evt-status.service';
-import { EditionLevel } from '../../app.config';
+import { AppConfig, EditionLevel } from '../../app.config';
 import { Page } from '../../models/evt-models';
 
 @Component({
@@ -36,11 +36,20 @@ export class ReadingTextComponent {
   );
   public options: GridsterConfig = {};
 
+  public apparatusesItems = AppConfig.evtSettings.ui.apparatusesItems ?? ['critical', 'sources', 'analogues', 'notes'];
+  enabledApparatusesItems = this.apparatusesItems.reduce((enabledItemsMap, item) => ({
+    ...enabledItemsMap,
+    [item]: true,
+  }), {})
   public apparatusesOpened = true;
   public apparatusesItem: GridsterItem = { cols: 1, rows: 1, y: 0, x: 1 };
+  public enableApparatuses = !AppConfig.evtSettings.ui.disableApparatuses && this.apparatusesItems.length > 0;
 
   public pinnedBoardOpened = false;
   public pinnedBoardItem: GridsterItem = { cols: 1, rows: 1, y: 0, x: 1 };
+  public enablePinnedBoard = !AppConfig.evtSettings.ui.disablePinnedBoard;
+
+  public showGlobalTools = !AppConfig.evtSettings.ui.hideGlobalTools;
 
   constructor(
     private evtStatusService: EVTStatusService,

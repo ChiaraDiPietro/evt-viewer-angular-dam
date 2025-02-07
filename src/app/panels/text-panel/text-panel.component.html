@@ -37,6 +37,7 @@
 
     <div footer>
         <evt-button
+            *ngIf="enableSearch"
             [iconLeft]="{icon: 'search'}"
             label="Search"
             additionalClasses="me-1"

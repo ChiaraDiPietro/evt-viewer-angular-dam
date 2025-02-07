@@ -131,6 +131,8 @@ export class TextPanelComponent {
   private showSecondaryContent = false;
 
   public enableProseVersesToggler = AppConfig.evtSettings.edition.proseVersesToggler;
+  public enableSearch = !AppConfig.evtSettings.ui.hideSearch;
+
   get defaultTextFlow() {
     if (!this.enableProseVersesToggler) {
       return undefined;
