@@ -31,7 +31,6 @@ export class AppConfig {
             return new Promise<void>((resolve) => {
                 window.addEventListener('message', (event: any) => {
                     if (event.data?.type === 'EVT_EXT_CONFIG') {
-                        console.log('POST MESSAGE', event.data);
                         this._load(event.data.message).finally(() => resolve());
                     }
                 })
