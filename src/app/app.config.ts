@@ -23,10 +23,12 @@ export class AppConfig {
     ) { }
 
     load() {
-        if ((window as any).USE_POST_MESSAGE) {
-            window.postMessage({
-                type: 'EVT_INIT',
-            }, '*');
+        if ((window as any).USE_POST_MESSAGE && window.postMessage) {
+            const bodyPostMessage = { type: 'EVT_INIT' };
+            window.postMessage(bodyPostMessage, '*');
+            if (window.top !== window) {
+                window.top.postMessage(bodyPostMessage, '*');
+            };
 
             return new Promise<void>((resolve) => {
                 window.addEventListener('message', (event: any) => {

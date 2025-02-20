@@ -1,3 +1,6 @@
+#!/bin/bash
+
+. ~/.nvm/nvm.sh
 nvm use 12
 
 npm run build -- --c=release  
